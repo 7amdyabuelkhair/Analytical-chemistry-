@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Batch Study Archive — Organized Course Hub</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'IBM Plex Sans Arabic', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    html {
+      font-family: 'Inter', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 9999px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #374151;
+    }
+    .tab-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .tab-scroll {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-[#FAFAFA] text-[#111827] dark:bg-[#0B0F17] dark:text-[#F3F4F6] min-h-screen flex flex-col">
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 h-14 bg-white/95 dark:bg-[#111827]/95 backdrop-blur border-b border-gray-200 dark:border-gray-800 px-4 lg:px-6 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <button id="mobileMenuBtn" type="button" class="lg:hidden p-2 -ml-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Toggle sidebar">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-bold text-sm shrink-0">
+          BA
+        </div>
+        <div class="min-w-0">
+          <h1 id="archiveTitleDisplay" class="text-sm font-semibold tracking-tight truncate">Batch Study Archive</h1>
+          <p id="archiveSubtitleDisplay" class="text-[11px] text-gray-500 dark:text-gray-400 truncate hidden sm:block">Permanent academic repository across years</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Search -->
+    <div class="flex-1 max-w-md hidden md:block">
+      <div class="relative">
+        <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+        <input id="globalSearchInput" type="text" placeholder="Search all subjects, lectures, Telegram links..."
+          class="w-full h-9 pl-9 pr-14 text-sm bg-gray-100 dark:bg-gray-800/80 border border-transparent focus:border-gray-300 dark:focus:border-gray-700 focus:bg-white dark:focus:bg-gray-900 rounded-lg outline-none transition-colors" />
+        <button id="clearGlobalSearchBtn" type="button" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 px-1.5 py-0.5 rounded">
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-2 shrink-0">
+      <button id="themeToggleBtn" type="button" class="p-2 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Toggle theme">
+        <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+        <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+      </button>
+
+      <button id="backupModalBtn" type="button" class="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <i data-lucide="database" class="w-3.5 h-3.5"></i>
+        <span>Backup / Sync</span>
+      </button>
+
+      <button id="editorModeBtn" type="button" class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium transition-colors border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+        <i id="editorLockIcon" data-lucide="lock" class="w-3.5 h-3.5"></i>
+        <span id="editorModeLabel">Editor Access</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Shell -->
+  <div class="flex-1 flex relative max-w-[1440px] w-full mx-auto">
+
+    <!-- Mobile Backdrop -->
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/40 z-30 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed lg:sticky top-14 left-0 z-40 w-72 h-[calc(100vh-3.5rem)] bg-white dark:bg-[#111827] border-r border-gray-200 dark:border-gray-800 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out shrink-0">
+      <!-- Year / Term Switcher -->
+      <div class="p-4 border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between mb-1.5">
+          <label for="termSelect" class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Academic Term</label>
+          <button id="addTermBtn" type="button" class="hidden text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:underline items-center gap-0.5">
+            + Add Term
+          </button>
+        </div>
+        <div class="relative">
+          <select id="termSelect" class="w-full h-9 pl-3 pr-8 text-sm font-medium bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-slate-400 dark:focus:border-slate-500 appearance-none cursor-pointer">
+          </select>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+        </div>
+      </div>
+
+      <!-- Mobile Search -->
+      <div class="p-3 border-b border-gray-200 dark:border-gray-800 md:hidden">
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+          <input id="mobileSearchInput" type="text" placeholder="Search all resources..."
+            class="w-full h-9 pl-9 pr-3 text-sm bg-gray-100 dark:bg-gray-800 rounded-lg outline-none" />
+        </div>
+      </div>
+
+      <!-- Subjects List -->
+      <div class="flex-1 overflow-y-auto p-3">
+        <div class="flex items-center justify-between px-2 mb-2">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Subjects (<span id="subjectCountLabel">0</span>)</span>
+          <button id="addSubjectBtn" type="button" class="hidden text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
+            + New
+          </button>
+        </div>
+        <nav id="subjectList" class="space-y-0.5" aria-label="Subjects"></nav>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="p-3 border-t border-gray-200 dark:border-gray-800 text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between">
+        <span id="storageStatsLabel">0 items stored</span>
+        <button id="settingsBtn" type="button" class="hidden text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium items-center gap-1">
+          <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+          <span>Settings</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+
+      <!-- Global Search Banner -->
+      <div id="globalSearchBanner" class="hidden mb-6 bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-semibold">Search Results</h2>
+          <p id="globalSearchMeta" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"></p>
+        </div>
+        <button id="exitGlobalSearchBtn" type="button" class="text-xs font-medium px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700">
+          Back to Subject
+        </button>
+      </div>
+
+      <!-- Subject Header -->
+      <div id="subjectHeader" class="mb-6">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div id="activeSubjectEmoji" class="w-12 h-12 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-2xl shrink-0 shadow-xs">
+              🧪
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-0.5">
+                <span id="activeTermBreadcrumb">Second Year · 1st Term</span>
+                <span>•</span>
+                <span id="activeSubjectTotalCount">0 items</span>
+              </div>
+              <h2 id="activeSubjectTitle" class="text-xl sm:text-2xl font-bold tracking-tight truncate">Analytical Chemistry</h2>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="editSubjectBtn" type="button" class="hidden h-9 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 items-center gap-1.5">
+              <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+              <span>Edit Subject</span>
+            </button>
+            <button id="primaryAddBtn" type="button" class="h-9 px-3.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold hover:bg-slate-800 dark:hover:bg-gray-100 transition-colors inline-flex items-center gap-1.5">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span id="primaryAddBtnLabel">Add to Lectures</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 5 Category Tabs -->
+        <div class="mt-5 border-b border-gray-200 dark:border-gray-800 overflow-x-auto tab-scroll">
+          <div id="categoryTabs" class="flex items-center gap-1 min-w-max" role="tablist"></div>
+        </div>
+      </div>
+
+      <!-- Filter & Sort Toolbar -->
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="relative">
+            <i data-lucide="filter" class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input id="localFilterInput" type="text" placeholder="Filter in this tab..."
+              class="h-8 pl-8 pr-3 text-xs bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-lg outline-none focus:border-gray-400 dark:focus:border-gray-600 w-48 sm:w-56" />
+          </div>
+
+          <select id="typeFilterSelect" class="h-8 px-2.5 text-xs bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-lg outline-none cursor-pointer">
+            <option value="all">All Types</option>
+            <option value="drive">Google Drive</option>
+            <option value="telegram">Telegram</option>
+            <option value="file">Uploaded Files</option>
+            <option value="video">Video / YouTube</option>
+            <option value="link">Websites & Links</option>
+          </select>
+
+          <select id="sortSelect" class="h-8 px-2.5 text-xs bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-lg outline-none cursor-pointer">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="az">Title A–Z</option>
+          </select>
+        </div>
+
+        <div class="text-xs text-gray-500 dark:text-gray-400" id="showingCountLabel">
+          Showing 0 items
+        </div>
+      </div>
+
+      <!-- Resource List Container -->
+      <div id="resourceList" class="space-y-2"></div>
+
+      <!-- Pagination / Load More -->
+      <div id="loadMoreWrap" class="hidden mt-5 text-center">
+        <button id="loadMoreBtn" type="button" class="h-9 px-5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#111827] text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          Load more
+        </button>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL: Editor Unlock / Access -->
+  <div id="unlockModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+    <div class="bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl w-full max-w-sm p-5 shadow-xl">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-base font-semibold">Editor Access</h3>
+        <button type="button" data-close-modal="unlockModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">
+        Enter your Admin or Editor PIN to unlock adding, editing, and organizing files across all subjects.
+      </p>
+      <form id="unlockForm" class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium mb-1">Access PIN</label>
+          <input id="unlockPinInput" type="password" inputmode="numeric" placeholder="Default admin PIN: 2026"
+            class="w-full h-9 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-slate-500" required />
+          <p id="unlockErrorMsg" class="hidden text-xs text-red-600 dark:text-red-400 mt-1">Incorrect PIN. Try again.</p>
+        </div>
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" data-close-modal="unlockModal" class="h-9 px-3.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Cancel</button>
+          <button type="submit" class="h-9 px-4 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold hover:bg-slate-800 dark:hover:bg-gray-100">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add / Edit Resource -->
+  <div id="resourceModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+    <div class="bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl w-full max-w-lg p-5 shadow-xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="resourceModalTitle" class="text-base font-semibold">Add Resource</h3>
+        <button type="button" data-close-modal="resourceModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Mode Switch: Single vs Bulk vs File Upload -->
+      <div id="resourceModeTabs" class="grid grid-cols-3 gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg mb-4 text-xs font-medium">
+        <button type="button" data-add-mode="link" class="py-1.5 rounded-md bg-white dark:bg-gray-900 shadow-xs text-gray-900 dark:text-white">Link / URL</button>
+        <button type="button" data-add-mode="file" class="py-1.5 rounded-md text-gray-500 dark:text-gray-400">Upload Files</button>
+        <button type="button" data-add-mode="bulk" class="py-1.5 rounded-md text-gray-500 dark:text-gray-400">Bulk Links</button>
+      </div>
+
+      <form id="resourceForm" class="space-y-3.5">
+        <input type="hidden" id="editResourceId" value="" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium mb-1">Subject</label>
+            <select id="resSubjectSelect" class="w-full h-9 px-2.5 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1">Section</label>
+            <select id="resCategorySelect" class="w-full h-9 px-2.5 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none"></select>
+          </div>
+        </div>
+
+        <!-- Single Link Fields -->
+        <div id="linkModeFields" class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium mb-1">Title</label>
+            <input id="resTitleInput" type="text" placeholder="e.g. Lecture 04 — Acid-Base Titrations"
+              class="w-full h-9 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-slate-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1">URL (Drive, Telegram, YouTube, Website)</label>
+            <input id="resUrlInput" type="url" placeholder="https://drive.google.com/... or https://t.me/..."
+              class="w-full h-9 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-slate-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1">Source Type</label>
+            <select id="resTypeSelect" class="w-full h-9 px-2.5 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none">
+              <option value="auto">Auto-detect from URL</option>
+              <option value="drive">Google Drive</option>
+              <option value="telegram">Telegram Group / Channel</option>
+              <option value="video">Video / YouTube</option>
+              <option value="link">Website / Article</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- File Upload Fields -->
+        <div id="fileModeFields" class="hidden space-y-3">
+          <div id="dropZone" class="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-6 text-center hover:border-slate-400 dark:hover:border-slate-500 transition-colors cursor-pointer">
+            <i data-lucide="upload-cloud" class="w-7 h-7 text-gray-400 mx-auto mb-2"></i>
+            <p class="text-xs font-medium text-gray-700 dark:text-gray-200">Click to select files or drag & drop here</p>
+            <p class="text-[11px] text-gray-400 mt-1">PDFs, slides, docs, images — stored locally in IndexedDB</p>
+            <input id="resFileInput" type="file" multiple class="hidden" />
+          </div>
+          <div id="selectedFilesPreview" class="space-y-1 max-h-32 overflow-y-auto"></div>
+        </div>
+
+        <!-- Bulk Links Fields -->
+        <div id="bulkModeFields" class="hidden space-y-2">
+          <label class="block text-xs font-medium">Paste multiple links (one per line)</label>
+          <p class="text-[11px] text-gray-500 dark:text-gray-400">Format: <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-800 rounded">Title | https://...</code> or just paste raw URLs.</p>
+          <textarea id="resBulkInput" rows="5" placeholder="Lecture 1 | https://drive.google.com/...&#10;Telegram Channel | https://t.me/..."
+            class="w-full p-3 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-slate-500 font-mono"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium mb-1">Note / Description <span class="text-gray-400 font-normal">(optional)</span></label>
+          <input id="resNoteInput" type="text" placeholder="e.g. Dr. Ahmed's slides + audio summary"
+            class="w-full h-9 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-slate-500" />
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-close-modal="resourceModal" class="h-9 px-3.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Cancel</button>
+          <button type="submit" class="h-9 px-4 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold hover:bg-slate-800 dark:hover:bg-gray-100">Save Resource</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add / Edit Subject -->
+  <div id="subjectModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+    <div class="bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl w-full max-w-sm p-5 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="subjectModalTitle" class="text-base font-semibold">Add Subject</h3>
+        <button type="button" data-close-modal="subjectModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <form id="subjectForm" class="space-y-3">
+        <input type="hidden" id="editSubjectId" value="" />
+        <div class="grid grid-cols-4 gap-2.5">
+          <div class="col-span-1">
+            <label class="block text-xs font-medium mb-1">Emoji</label>
+            <input id="subEmojiInput" type="text" value="📚" maxlength="6"
+              class="w-full h-9 px-2 text-center text-base bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none" />
+          </div>
+          <div class="col-span-3">
+            <label class="block text-xs font-medium mb-1">Subject Name</label>
+            <input id="subNameInput" type="text" placeholder="e.g. Biochemistry" required
+              class="w-full h-9 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-slate-500" />
+          </div>
+        </div>
+        <div class="flex items-center justify-between pt-2">
+          <button id="deleteSubjectBtn" type="button" class="hidden h-9 px-3 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40">Delete</button>
+          <div class="flex gap-2 ml-auto">
+            <button type="button" data-close-modal="subjectModal" class="h-9 px-3.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Cancel</button>
+            <button type="submit" class="h-9 px-4 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add Term / Year -->
+  <div id="termModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+    <div class="bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl w-full max-w-sm p-5 shadow-xl">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-base font-semibold">Add Academic Year / Term</h3>
+        <button type="button" data-close-modal="termModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Previous terms stay archived and accessible for future batches.</p>
+      <form id="termForm" class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium mb-1">Term Name</label>
+          <input id="termNameInput" type="text" placeholder="e.g. Second Year · 2nd Term" required
+            class="w-full h-9 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-slate-500" />
+        </div>
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" data-close-modal="termModal" class="h-9 px-3.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Cancel</button>
+          <button type="submit" class="h-9 px-4 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold">Create Term</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Editor Settings & Contributors -->
+  <div id="settingsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+    <div class="bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl w-full max-w-md p-5 shadow-xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-semibold">Archive & Editor Settings</h3>
+        <button type="button" data-close-modal="settingsModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form id="settingsForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium mb-1">Archive Title</label>
+          <input id="settingTitleInput" type="text" class="w-full h-9 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium mb-1">Admin PIN</label>
+          <input id="settingAdminPinInput" type="text" class="w-full h-9 px-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none" />
+        </div>
+
+        <div class="border-t border-gray-200 dark:border-gray-800 pt-3">
+          <label class="block text-xs font-semibold mb-1">Authorized Editors (People You Choose)</label>
+          <p class="text-[11px] text-gray-500 dark:text-gray-400 mb-2">Assign personal PINs to classmates who can add/manage materials.</p>
+          <div id="editorsList" class="space-y-1.5 mb-2.5"></div>
+          <div class="flex gap-2">
+            <input id="newEditorName" type="text" placeholder="Name (e.g. Omar)" class="flex-1 h-8 px-2.5 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none" />
+            <input id="newEditorPin" type="text" placeholder="PIN" class="w-24 h-8 px-2.5 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg outline-none" />
+            <button id="addEditorBtn" type="button" class="h-8 px-3 rounded-lg bg-gray-200 dark:bg-gray-700 text-xs font-medium hover:bg-gray-300 dark:hover:bg-gray-600">Add</button>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-close-modal="settingsModal" class="h-9 px-3.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Cancel</button>
+          <button type="submit" class="h-9 px-4 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold">Save Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Backup & Sync -->
+  <div id="backupModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+    <div class="bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl w-full max-w-md p-5 shadow-xl">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-base font-semibold">Backup & Batch Sync</h3>
+        <button type="button" data-close-modal="backupModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">
+        Export your entire archive (terms, subjects, links, and metadata) as a JSON file to share with your batch or back up before clearing browser data.
+      </p>
+      <div class="space-y-2.5">
+        <button id="exportJsonBtn" type="button" class="w-full h-10 px-4 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold flex items-center justify-center gap-2 hover:bg-slate-800 dark:hover:bg-gray-100">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Export Archive (.json)</span>
+        </button>
+        <label class="w-full h-10 px-4 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-medium flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+          <i data-lucide="upload" class="w-4 h-4"></i>
+          <span>Import Archive (.json)</span>
+          <input id="importJsonInput" type="file" accept=".json,application/json" class="hidden" />
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+  <script>
+    const CATEGORIES = [
+      { id: 'lectures', label: 'Lectures', icon: 'book-open' },
+      { id: 'sections', label: 'Sections', icon: 'flask-conical' },
+      { id: 'summaries', label: 'Summaries & Notes', icon: 'file-text' },
+      { id: 'exams', label: 'Exams & Questions', icon: 'clipboard-check' },
+      { id: 'external', label: 'External Resources', icon: 'globe' },
+    ];
+
+    const DEFAULT_STATE = {
+      settings: {
+        title: 'Batch Study Archive',
+        subtitle: 'Permanent academic repository across years',
+        adminPin: '2026',
+        editors: [
+          { name: 'Admin', pin: '2026' }
+        ],
+      },
+      terms: [
+        { id: 'term-y2-t1', name: 'Second Year · 1st Term', createdAt: 1730000000000 }
+      ],
+      subjects: [
+        { id: 'sub-analytical', termId: 'term-y2-t1', name: 'Analytical Chemistry', emoji: '🖥️🧪' },
+        { id: 'sub-aromatic', termId: 'term-y2-t1', name: 'Aromatic chemistry', emoji: '🌹' },
+        { id: 'sub-buffer', termId: 'term-y2-t1', name: 'Buffer Chemistry', emoji: '🧪' },
+        { id: 'sub-data', termId: 'term-y2-t1', name: 'Data analysis and presentation', emoji: '📈' },
+        { id: 'sub-math', termId: 'term-y2-t1', name: 'Math', emoji: '🧮' },
+        { id: 'sub-micro', termId: 'term-y2-t1', name: 'Micro', emoji: '🦠🧫' },
+        { id: 'sub-organic2', termId: 'term-y2-t1', name: 'Organic Chemistry 2', emoji: '🧪🍄' },
+        { id: 'sub-physical', termId: 'term-y2-t1', name: 'Physical Chemistry', emoji: '⚗️🌡️' },
+        { id: 'sub-physics2', termId: 'term-y2-t1', name: 'Physics 2', emoji: '☠️' },
+        { id: 'sub-radiation', termId: 'term-y2-t1', name: 'Radiation', emoji: '🧬👩‍🔬' },
+        { id: 'sub-vitamins', termId: 'term-y2-t1', name: 'Vitamins', emoji: '💊💉' },
+      ],
+      resources: [
+        {
+          id: 'res-sample-1',
+          termId: 'term-y2-t1',
+          subjectId: 'sub-analytical',
+          category: 'external',
+          title: 'Second Year Drive Folder (Main)',
+          url: 'https://drive.google.com',
+          type: 'drive',
+          note: 'Replace with your actual Google Drive folder link in Editor Mode',
+          addedBy: 'Admin',
+          createdAt: Date.now() - 86400000 * 3,
+          hasBlob: false
+        },
+        {
+          id: 'res-sample-2',
+          termId: 'term-y2-t1',
+          subjectId: 'sub-analytical',
+          category: 'external',
+          title: 'Batch Telegram Channel',
+          url: 'https://t.me',
+          type: 'telegram',
+          note: 'Add your subject Telegram group or channel link here',
+          addedBy: 'Admin',
+          createdAt: Date.now() - 86400000 * 2,
+          hasBlob: false
+        }
+      ]
+    };
+
+    const DB_NAME = 'BatchStudyArchiveDB';
+    const DB_VERSION = 1;
+    let dbInstance = null;
+
+    function openDB() {
+      return new Promise((resolve) => {
+        if (!window.indexedDB) {
+          resolve(null);
+          return;
+        }
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('meta')) {
+            db.createObjectStore('meta', { keyPath: 'key' });
+          }
+          if (!db.objectStoreNames.contains('blobs')) {
+            db.createObjectStore('blobs', { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    async function loadStateFromDB() {
+      dbInstance = await openDB();
+      if (!dbInstance) {
+        try {
+          const raw = localStorage.getItem('batch_archive_fallback');
+          return raw ? JSON.parse(raw) : structuredClone(DEFAULT_STATE);
+        } catch {
+          return structuredClone(DEFAULT_STATE);
+        }
+      }
+      return new Promise((resolve) => {
+        const tx = dbInstance.transaction('meta', 'readonly');
+        const store = tx.objectStore('meta');
+        const req = store.get('appState');
+        req.onsuccess = () => {
+          if (req.result && req.result.value) {
+            resolve(req.result.value);
+          } else {
+            resolve(structuredClone(DEFAULT_STATE));
+          }
+        };
+        req.onerror = () => resolve(structuredClone(DEFAULT_STATE));
+      });
+    }
+
+    async function saveStateToDB(data) {
+      if (!dbInstance) {
+        try {
+          localStorage.setItem('batch_archive_fallback', JSON.stringify(data));
+        } catch {}
+        return;
+      }
+      return new Promise((resolve) => {
+        const tx = dbInstance.transaction('meta', 'readwrite');
+        tx.objectStore('meta').put({ key: 'appState', value: data });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      });
+    }
+
+    async function saveBlobToDB(id, file) {
+      if (!dbInstance) return;
+      return new Promise((resolve) => {
+        const tx = dbInstance.transaction('blobs', 'readwrite');
+        tx.objectStore('blobs').put({ id, fileName: file.name, mimeType: file.type, size: file.size, blob: file });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      });
+    }
+
+    async function getBlobFromDB(id) {
+      if (!dbInstance) return null;
+      return new Promise((resolve) => {
+        const tx = dbInstance.transaction('blobs', 'readonly');
+        const req = tx.objectStore('blobs').get(id);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    async function deleteBlobFromDB(id) {
+      if (!dbInstance) return;
+      return new Promise((resolve) => {
+        const tx = dbInstance.transaction('blobs', 'readwrite');
+        tx.objectStore('blobs').delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      });
+    }
+
+    let appData = structuredClone(DEFAULT_STATE);
+    let activeTermId = 'term-y2-t1';
+    let activeSubjectId = 'sub-analytical';
+    let activeCategory = 'lectures';
+    let currentEditor = null;
+    let globalSearchQuery = '';
+    let localFilterQuery = '';
+    let typeFilter = 'all';
+    let sortMode = 'newest';
+    let pageLimit = 40;
+    const PAGE_STEP = 40;
+    let addMode = 'link';
+    let pendingUploadFiles = [];
+
+    function uid(prefix = 'id') {
+      return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+    }
+
+    function detectTypeFromUrl(url) {
+      const lower = (url || '').toLowerCase();
+      if (lower.includes('drive.google.com') || lower.includes('docs.google.com')) return 'drive';
+      if (lower.includes('t.me/') || lower.includes('telegram.me/') || lower.includes('telegram.org')) return 'telegram';
+      if (lower.includes('youtube.com') || lower.includes('youtu.be') || lower.includes('vimeo.com')) return 'video';
+      return 'link';
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes) return '';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
+    }
+
+    function formatDate(ts) {
+      try {
+        return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      } catch {
+        return '';
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function showToast(message, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-3.5 py-2.5 rounded-lg shadow-lg text-xs font-medium border flex items-center gap-2 transition-all ${
+        isError
+          ? 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-200 border-red-200 dark:border-red-800'
+          : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-800 dark:border-gray-200'
+      }`;
+      el.textContent = message;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 200);
+      }, 2600);
+    }
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('hidden');
+      el.classList.add('flex');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add('hidden');
+      el.classList.remove('flex');
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast('Link copied')).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast('Link copied');
+      } catch {
+        showToast('Could not copy link', true);
+      }
+      ta.remove();
+    }
+
+    function getBadgeInfo(type) {
+      switch (type) {
+        case 'drive':
+          return { label: 'Google Drive', icon: 'hard-drive', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/70' };
+        case 'telegram':
+          return { label: 'Telegram', icon: 'send', cls: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800/70' };
+        case 'video':
+          return { label: 'Video', icon: 'play-circle', cls: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800/70' };
+        case 'file':
+          return { label: 'File', icon: 'file', cls: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/70' };
+        default:
+          return { label: 'Website', icon: 'external-link', cls: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700' };
+      }
+    }
+
+    function renderAll() {
+      renderHeader();
+      renderTerms();
+      renderSubjects();
+      renderMainView();
+      lucide.createIcons();
+    }
+
+    function renderHeader() {
+      document.getElementById('archiveTitleDisplay').textContent = appData.settings.title || 'Batch Study Archive';
+      document.getElementById('archiveSubtitleDisplay').textContent = appData.settings.subtitle || '';
+
+      const editorBtn = document.getElementById('editorModeBtn');
+      const editorLabel = document.getElementById('editorModeLabel');
+      const lockIcon = document.getElementById('editorLockIcon');
+      const isEditor = Boolean(currentEditor);
+
+      if (isEditor) {
+        editorBtn.className = 'inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium transition-colors border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50';
+        editorLabel.textContent = `Editor: ${currentEditor} (Lock)`;
+        lockIcon.setAttribute('data-lucide', 'unlock');
+      } else {
+        editorBtn.className = 'inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium transition-colors border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700';
+        editorLabel.textContent = 'Editor Access';
+        lockIcon.setAttribute('data-lucide', 'lock');
+      }
+
+      const editorOnlyIds = ['addTermBtn', 'addSubjectBtn', 'settingsBtn', 'editSubjectBtn'];
+      editorOnlyIds.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (isEditor) {
+          el.classList.remove('hidden');
+          el.classList.add('inline-flex');
+        } else {
+          el.classList.add('hidden');
+          el.classList.remove('inline-flex');
+        }
+      });
+
+      document.getElementById('storageStatsLabel').textContent = `${appData.resources.length.toLocaleString()} items archived`;
+    }
+
+    function renderTerms() {
+      const select = document.getElementById('termSelect');
+      select.innerHTML = '';
+      appData.terms.forEach((t) => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name;
+        if (t.id === activeTermId) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderSubjects() {
+      const termSubjects = appData.subjects.filter((s) => s.termId === activeTermId);
+      document.getElementById('subjectCountLabel').textContent = termSubjects.length;
+
+      if (!termSubjects.some((s) => s.id === activeSubjectId)) {
+        activeSubjectId = termSubjects.length ? termSubjects[0].id : null;
+      }
+
+      const counts = {};
+      for (const r of appData.resources) {
+        counts[r.subjectId] = (counts[r.subjectId] || 0) + 1;
+      }
+
+      const nav = document.getElementById('subjectList');
+      if (termSubjects.length === 0) {
+        nav.innerHTML = `<p class="text-xs text-gray-400 px-2 py-4 text-center">No subjects in this term yet.</p>`;
+        return;
+      }
+
+      nav.innerHTML = termSubjects.map((s) => {
+        const isActive = s.id === activeSubjectId && !globalSearchQuery;
+        const cnt = counts[s.id] || 0;
+        return `
+          <button type="button" data-subject-id="${escapeHtml(s.id)}"
+            class="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-left text-[13px] transition-colors ${
+              isActive
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-medium'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/70'
+            }">
+            <span class="flex items-center gap-2 min-w-0">
+              <span class="shrink-0 text-sm">${escapeHtml(s.emoji || '📁')}</span>
+              <span class="truncate">${escapeHtml(s.name)}</span>
+            </span>
+            <span class="text-[11px] px-1.5 py-0.5 rounded-md shrink-0 ${
+              isActive
+                ? 'bg-white/20 text-white dark:bg-slate-900/15 dark:text-slate-900'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+            }">${cnt}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderMainView() {
+      const isGlobal = Boolean(globalSearchQuery.trim());
+      const globalBanner = document.getElementById('globalSearchBanner');
+      const subjectHeader = document.getElementById('subjectHeader');
+
+      if (isGlobal) {
+        globalBanner.classList.remove('hidden');
+        subjectHeader.classList.add('hidden');
+      } else {
+        globalBanner.classList.add('hidden');
+        subjectHeader.classList.remove('hidden');
+        renderSubjectHeaderAndTabs();
+      }
+
+      renderResourceList(isGlobal);
+    }
+
+    function renderSubjectHeaderAndTabs() {
+      const term = appData.terms.find((t) => t.id === activeTermId);
+      const subject = appData.subjects.find((s) => s.id === activeSubjectId);
+
+      if (!subject) {
+        document.getElementById('activeSubjectEmoji').textContent = '📂';
+        document.getElementById('activeSubjectTitle').textContent = 'No Subject Selected';
+        document.getElementById('activeTermBreadcrumb').textContent = term ? term.name : '';
+        document.getElementById('activeSubjectTotalCount').textContent = '0 items';
+        document.getElementById('categoryTabs').innerHTML = '';
+        return;
+      }
+
+      const subjectResources = appData.resources.filter((r) => r.subjectId === subject.id);
+      const catCounts = {};
+      for (const r of subjectResources) {
+        catCounts[r.category] = (catCounts[r.category] || 0) + 1;
+      }
+
+      document.getElementById('activeSubjectEmoji').textContent = subject.emoji || '📁';
+      document.getElementById('activeSubjectTitle').textContent = subject.name;
+      document.getElementById('activeTermBreadcrumb').textContent = term ? term.name : '';
+      document.getElementById('activeSubjectTotalCount').textContent = `${subjectResources.length} total items`;
+
+      const activeCatObj = CATEGORIES.find((c) => c.id === activeCategory) || CATEGORIES[0];
+      document.getElementById('primaryAddBtnLabel').textContent = `Add to ${activeCatObj.label}`;
+
+      const tabsHtml = CATEGORIES.map((cat) => {
+        const isActive = cat.id === activeCategory;
+        const count = catCounts[cat.id] || 0;
+        return `
+          <button type="button" data-category-id="${cat.id}" role="tab" aria-selected="${isActive}"
+            class="inline-flex items-center gap-2 px-3.5 py-2.5 text-xs font-medium border-b-2 transition-colors whitespace-nowrap ${
+              isActive
+                ? 'border-slate-900 dark:border-white text-slate-900 dark:text-white'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+            }">
+            <i data-lucide="${cat.icon}" class="w-3.5 h-3.5"></i>
+            <span>${cat.label}</span>
+            <span class="px-1.5 py-0.5 rounded-full text-[10px] ${
+              isActive
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+            }">${count}</span>
+          </button>
+        `;
+      }).join('');
+
+      document.getElementById('categoryTabs').innerHTML = tabsHtml;
+    }
+
+    function renderResourceList(isGlobal) {
+      let items = appData.resources;
+
+      if (isGlobal) {
+        const q = globalSearchQuery.trim().toLowerCase();
+        items = items.filter((r) => {
+          const subj = appData.subjects.find((s) => s.id === r.subjectId);
+          const subjName = subj ? subj.name.toLowerCase() : '';
+          return (
+            r.title.toLowerCase().includes(q) ||
+            (r.note || '').toLowerCase().includes(q) ||
+            (r.url || '').toLowerCase().includes(q) ||
+            subjName.includes(q)
+          );
+        });
+        document.getElementById('globalSearchMeta').textContent = `Found ${items.length} matching item(s) across all terms & subjects for "${globalSearchQuery.trim()}"`;
+      } else {
+        if (!activeSubjectId) {
+          document.getElementById('resourceList').innerHTML = '';
+          document.getElementById('showingCountLabel').textContent = '0 items';
+          document.getElementById('loadMoreWrap').classList.add('hidden');
+          return;
+        }
+        items = items.filter((r) => r.subjectId === activeSubjectId && r.category === activeCategory);
+      }
+
+      if (localFilterQuery.trim()) {
+        const lq = localFilterQuery.trim().toLowerCase();
+        items = items.filter((r) =>
+          r.title.toLowerCase().includes(lq) ||
+          (r.note || '').toLowerCase().includes(lq) ||
+          (r.addedBy || '').toLowerCase().includes(lq)
+        );
+      }
+
+      if (typeFilter !== 'all') {
+        items = items.filter((r) => r.type === typeFilter);
+      }
+
+      items = [...items];
+      if (sortMode === 'newest') items.sort((a, b) => b.createdAt - a.createdAt);
+      else if (sortMode === 'oldest') items.sort((a, b) => a.createdAt - b.createdAt);
+      else if (sortMode === 'az') items.sort((a, b) => a.title.localeCompare(b.title));
+
+      const totalCount = items.length;
+      const visibleItems = items.slice(0, pageLimit);
+
+      document.getElementById('showingCountLabel').textContent = `Showing ${visibleItems.length} of ${totalCount} items`;
+
+      const loadMoreWrap = document.getElementById('loadMoreWrap');
+      if (totalCount > pageLimit) {
+        loadMoreWrap.classList.remove('hidden');
+        document.getElementById('loadMoreBtn').textContent = `Load more (${totalCount - pageLimit} remaining)`;
+      } else {
+        loadMoreWrap.classList.add('hidden');
+      }
+
+      const listEl = document.getElementById('resourceList');
+      if (totalCount === 0) {
+        const catObj = CATEGORIES.find((c) => c.id === activeCategory);
+        listEl.innerHTML = `
+          <div class="bg-white dark:bg-[#111827] border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-10 text-center">
+            <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3 text-gray-400">
+              <i data-lucide="folder-open" class="w-5 h-5"></i>
+            </div>
+            <p class="text-sm font-medium text-gray-800 dark:text-gray-200">No items here yet</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">
+              ${isGlobal ? 'Try another search keyword.' : `Add Google Drive folders, Telegram links, or upload files to ${catObj ? catObj.label : 'this section'}.`}
+            </p>
+            ${!isGlobal ? `
+              <button type="button" data-empty-add="true" class="mt-4 h-8 px-3.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-medium inline-flex items-center gap-1.5">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>Add First Item</span>
+              </button>
+            ` : ''}
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = visibleItems.map((r) => {
+        const badge = getBadgeInfo(r.type);
+        const subj = isGlobal ? appData.subjects.find((s) => s.id === r.subjectId) : null;
+        const cat = isGlobal ? CATEGORIES.find((c) => c.id === r.category) : null;
+
+        return `
+          <div class="group bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 ${badge.cls}">
+                <i data-lucide="${badge.icon}" class="w-4 h-4"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 break-words">${escapeHtml(r.title)}</h4>
+                  <span class="text-[10px] font-medium px-1.5 py-0.5 rounded border ${badge.cls}">${badge.label}</span>
+                  ${isGlobal && subj ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">${escapeHtml(subj.emoji)} ${escapeHtml(subj.name)} · ${cat ? cat.label : ''}</span>` : ''}
+                </div>
+                ${r.note ? `<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 break-words">${escapeHtml(r.note)}</p>` : ''}
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px] text-gray-400 dark:text-gray-500">
+                  <span>${formatDate(r.createdAt)}</span>
+                  ${r.addedBy ? `<span>Added by ${escapeHtml(r.addedBy)}</span>` : ''}
+                  ${r.fileSize ? `<span>${formatBytes(r.fileSize)}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+              ${r.hasBlob ? `
+                <button type="button" data-download-id="${escapeHtml(r.id)}" class="h-8 px-3 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-medium hover:bg-slate-800 dark:hover:bg-gray-100 inline-flex items-center gap-1.5">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                  <span>Download</span>
+                </button>
+              ` : `
+                <button type="button" data-copy-url="${escapeHtml(r.url)}" class="h-8 px-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 inline-flex items-center gap-1" title="Copy link">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                </button>
+                <a href="${escapeHtml(r.url)}" target="_blank" rel="noopener noreferrer" class="h-8 px-3 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-medium hover:bg-slate-800 dark:hover:bg-gray-100 inline-flex items-center gap-1.5">
+                  <span>Open</span>
+                  <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                </a>
+              `}
+
+              ${currentEditor ? `
+                <button type="button" data-edit-res-id="${escapeHtml(r.id)}" class="h-8 w-8 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 inline-flex items-center justify-center" title="Edit">
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                </button>
+                <button type="button" data-del-res-id="${escapeHtml(r.id)}" class="h-8 w-8 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 inline-flex items-center justify-center" title="Delete">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function requireEditorOrPrompt(callback) {
+      if (currentEditor) {
+        callback();
+      } else {
+        document.getElementById('unlockPinInput').value = '';
+        document.getElementById('unlockErrorMsg').classList.add('hidden');
+        openModal('unlockModal');
+        document.getElementById('unlockPinInput').focus();
+      }
+    }
+
+    function openAddResourceModal(editId = null) {
+      requireEditorOrPrompt(() => {
+        const subSelect = document.getElementById('resSubjectSelect');
+        const catSelect = document.getElementById('resCategorySelect');
+        const termSubjects = appData.subjects.filter((s) => s.termId === activeTermId);
+
+        subSelect.innerHTML = termSubjects.map((s) =>
+          `<option value="${escapeHtml(s.id)}">${escapeHtml(s.emoji)} ${escapeHtml(s.name)}</option>`
+        ).join('');
+        catSelect.innerHTML = CATEGORIES.map((c) =>
+          `<option value="${c.id}">${c.label}</option>`
+        ).join('');
+
+        pendingUploadFiles = [];
+        document.getElementById('selectedFilesPreview').innerHTML = '';
+        document.getElementById('resFileInput').value = '';
+        document.getElementById('resBulkInput').value = '';
+
+        if (editId) {
+          const item = appData.resources.find((r) => r.id === editId);
+          if (!item) return;
+          document.getElementById('resourceModalTitle').textContent = 'Edit Resource';
+          document.getElementById('editResourceId').value = item.id;
+          subSelect.value = item.subjectId;
+          catSelect.value = item.category;
+          document.getElementById('resTitleInput').value = item.title;
+          document.getElementById('resUrlInput').value = item.url || '';
+          document.getElementById('resNoteInput').value = item.note || '';
+          document.getElementById('resTypeSelect').value = item.hasBlob ? 'auto' : (item.type || 'auto');
+          document.getElementById('resourceModeTabs').classList.add('hidden');
+          setAddMode('link');
+        } else {
+          document.getElementById('resourceModalTitle').textContent = 'Add Resource';
+          document.getElementById('editResourceId').value = '';
+          if (activeSubjectId) subSelect.value = activeSubjectId;
+          catSelect.value = activeCategory;
+          document.getElementById('resTitleInput').value = '';
+          document.getElementById('resUrlInput').value = '';
+          document.getElementById('resNoteInput').value = '';
+          document.getElementById('resTypeSelect').value = 'auto';
+          document.getElementById('resourceModeTabs').classList.remove('hidden');
+          setAddMode('link');
+        }
+
+        openModal('resourceModal');
+      });
+    }
+
+    function setAddMode(mode) {
+      addMode = mode;
+      document.querySelectorAll('[data-add-mode]').forEach((btn) => {
+        const active = btn.getAttribute('data-add-mode') === mode;
+        btn.className = active
+          ? 'py-1.5 rounded-md bg-white dark:bg-gray-900 shadow-xs text-gray-900 dark:text-white'
+          : 'py-1.5 rounded-md text-gray-500 dark:text-gray-400';
+      });
+      document.getElementById('linkModeFields').classList.toggle('hidden', mode !== 'link');
+      document.getElementById('fileModeFields').classList.toggle('hidden', mode !== 'file');
+      document.getElementById('bulkModeFields').classList.toggle('hidden', mode !== 'bulk');
+    }
+
+    function renderEditorsList() {
+      const container = document.getElementById('editorsList');
+      container.innerHTML = appData.settings.editors.map((ed, idx) => `
+        <div class="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-xs">
+          <span><strong>${escapeHtml(ed.name)}</strong> · PIN: <code class="font-mono">${escapeHtml(ed.pin)}</code></span>
+          ${idx > 0 ? `<button type="button" data-remove-editor="${idx}" class="text-red-500 hover:underline">Remove</button>` : `<span class="text-[10px] text-gray-400">Primary</span>`}
+        </div>
+      `).join('');
+    }
+
+    function bindEvents() {
+      document.getElementById('themeToggleBtn').addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        try { localStorage.setItem('batch_archive_theme', isDark ? 'dark' : 'light'); } catch {}
+      });
+
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      function closeSidebar() {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+      document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+        sidebar.classList.toggle('-translate-x-full');
+        backdrop.classList.toggle('hidden');
+      });
+      backdrop.addEventListener('click', closeSidebar);
+
+      document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+        btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close-modal')));
+      });
+
+      document.getElementById('termSelect').addEventListener('change', (e) => {
+        activeTermId = e.target.value;
+        globalSearchQuery = '';
+        document.getElementById('globalSearchInput').value = '';
+        pageLimit = PAGE_STEP;
+        renderAll();
+      });
+
+      document.getElementById('subjectList').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-subject-id]');
+        if (!btn) return;
+        activeSubjectId = btn.getAttribute('data-subject-id');
+        globalSearchQuery = '';
+        document.getElementById('globalSearchInput').value = '';
+        document.getElementById('clearGlobalSearchBtn').classList.add('hidden');
+        pageLimit = PAGE_STEP;
+        closeSidebar();
+        renderAll();
+      });
+
+      document.getElementById('categoryTabs').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-category-id]');
+        if (!btn) return;
+        activeCategory = btn.getAttribute('data-category-id');
+        pageLimit = PAGE_STEP;
+        renderMainView();
+        lucide.createIcons();
+      });
+
+      let searchTimer = null;
+      function handleGlobalSearch(val) {
+        globalSearchQuery = val;
+        document.getElementById('clearGlobalSearchBtn').classList.toggle('hidden', !val.trim());
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+          pageLimit = PAGE_STEP;
+          renderAll();
+        }, 160);
+      }
+      document.getElementById('globalSearchInput').addEventListener('input', (e) => handleGlobalSearch(e.target.value));
+      document.getElementById('mobileSearchInput').addEventListener('input', (e) => handleGlobalSearch(e.target.value));
+      document.getElementById('clearGlobalSearchBtn').addEventListener('click', () => {
+        document.getElementById('globalSearchInput').value = '';
+        document.getElementById('mobileSearchInput').value = '';
+        handleGlobalSearch('');
+      });
+      document.getElementById('exitGlobalSearchBtn').addEventListener('click', () => {
+        document.getElementById('globalSearchInput').value = '';
+        document.getElementById('mobileSearchInput').value = '';
+        handleGlobalSearch('');
+      });
+
+      let localTimer = null;
+      document.getElementById('localFilterInput').addEventListener('input', (e) => {
+        localFilterQuery = e.target.value;
+        clearTimeout(localTimer);
+        localTimer = setTimeout(() => {
+          pageLimit = PAGE_STEP;
+          renderMainView();
+          lucide.createIcons();
+        }, 150);
+      });
+      document.getElementById('typeFilterSelect').addEventListener('change', (e) => {
+        typeFilter = e.target.value;
+        pageLimit = PAGE_STEP;
+        renderMainView();
+        lucide.createIcons();
+      });
+      document.getElementById('sortSelect').addEventListener('change', (e) => {
+        sortMode = e.target.value;
+        renderMainView();
+        lucide.createIcons();
+      });
+
+      document.getElementById('loadMoreBtn').addEventListener('click', () => {
+        pageLimit += PAGE_STEP;
+        renderMainView();
+        lucide.createIcons();
+      });
+
+      document.getElementById('editorModeBtn').addEventListener('click', () => {
+        if (currentEditor) {
+          currentEditor = null;
+          showToast('Switched to Read-Only mode');
+          renderAll();
+        } else {
+          requireEditorOrPrompt(() => {});
+        }
+      });
+
+      document.getElementById('unlockForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pin = document.getElementById('unlockPinInput').value.trim();
+        if (pin === appData.settings.adminPin) {
+          currentEditor = 'Admin';
+        } else {
+          const found = appData.settings.editors.find((ed) => ed.pin === pin);
+          if (found) currentEditor = found.name;
+        }
+        if (currentEditor) {
+          closeModal('unlockModal');
+          showToast(`Editor mode unlocked (${currentEditor})`);
+          renderAll();
+        } else {
+          document.getElementById('unlockErrorMsg').classList.remove('hidden');
+        }
+      });
+
+      document.getElementById('primaryAddBtn').addEventListener('click', () => openAddResourceModal());
+      document.getElementById('resourceList').addEventListener('click', async (e) => {
+        if (e.target.closest('[data-empty-add]')) {
+          openAddResourceModal();
+          return;
+        }
+        const copyBtn = e.target.closest('[data-copy-url]');
+        if (copyBtn) {
+          copyText(copyBtn.getAttribute('data-copy-url'));
+          return;
+        }
+        const dlBtn = e.target.closest('[data-download-id]');
+        if (dlBtn) {
+          const id = dlBtn.getAttribute('data-download-id');
+          const record = await getBlobFromDB(id);
+          if (!record || !record.blob) {
+            showToast('File blob not found in local storage', true);
+            return;
+          }
+          const url = URL.createObjectURL(record.blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = record.fileName || 'download';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          return;
+        }
+        const editBtn = e.target.closest('[data-edit-res-id]');
+        if (editBtn) {
+          openAddResourceModal(editBtn.getAttribute('data-edit-res-id'));
+          return;
+        }
+        const delBtn = e.target.closest('[data-del-res-id]');
+        if (delBtn) {
+          const id = delBtn.getAttribute('data-del-res-id');
+          const target = appData.resources.find((r) => r.id === id);
+          appData.resources = appData.resources.filter((r) => r.id !== id);
+          if (target && target.hasBlob) await deleteBlobFromDB(id);
+          await saveStateToDB(appData);
+          showToast('Resource removed');
+          renderAll();
+        }
+      });
+
+      document.querySelectorAll('[data-add-mode]').forEach((btn) => {
+        btn.addEventListener('click', () => setAddMode(btn.getAttribute('data-add-mode')));
+      });
+
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('resFileInput');
+      dropZone.addEventListener('click', () => fileInput.click());
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-slate-500');
+      });
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-slate-500'));
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-slate-500');
+        handleSelectedFiles(e.dataTransfer.files);
+      });
+      fileInput.addEventListener('change', (e) => handleSelectedFiles(e.target.files));
+
+      function handleSelectedFiles(fileList) {
+        pendingUploadFiles = Array.from(fileList || []);
+        const preview = document.getElementById('selectedFilesPreview');
+        preview.innerHTML = pendingUploadFiles.map((f) =>
+          `<div class="text-xs px-2.5 py-1.5 rounded bg-gray-100 dark:bg-gray-800 flex justify-between">
+            <span class="truncate">${escapeHtml(f.name)}</span>
+            <span class="text-gray-400 shrink-0 ml-2">${formatBytes(f.size)}</span>
+          </div>`
+        ).join('');
+      }
+
+      document.getElementById('resourceForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const editId = document.getElementById('editResourceId').value;
+        const subjectId = document.getElementById('resSubjectSelect').value;
+        const category = document.getElementById('resCategorySelect').value;
+        const note = document.getElementById('resNoteInput').value.trim();
+
+        if (editId) {
+          const item = appData.resources.find((r) => r.id === editId);
+          if (!item) return;
+          const title = document.getElementById('resTitleInput').value.trim();
+          const url = document.getElementById('resUrlInput').value.trim();
+          const chosenType = document.getElementById('resTypeSelect').value;
+          if (!title) { showToast('Title is required', true); return; }
+          item.subjectId = subjectId;
+          item.category = category;
+          item.title = title;
+          item.note = note;
+          if (!item.hasBlob) {
+            item.url = url;
+            item.type = chosenType === 'auto' ? detectTypeFromUrl(url) : chosenType;
+          }
+          await saveStateToDB(appData);
+          closeModal('resourceModal');
+          showToast('Resource updated');
+          renderAll();
+          return;
+        }
+
+        if (addMode === 'link') {
+          const title = document.getElementById('resTitleInput').value.trim();
+          const url = document.getElementById('resUrlInput').value.trim();
+          const chosenType = document.getElementById('resTypeSelect').value;
+          if (!title || !url) {
+            showToast('Please enter both title and URL', true);
+            return;
+          }
+          appData.resources.push({
+            id: uid('res'),
+            termId: activeTermId,
+            subjectId,
+            category,
+            title,
+            url,
+            type: chosenType === 'auto' ? detectTypeFromUrl(url) : chosenType,
+            note,
+            addedBy: currentEditor || 'Admin',
+            createdAt: Date.now(),
+            hasBlob: false
+          });
+          await saveStateToDB(appData);
+          closeModal('resourceModal');
+          showToast('Link added');
+        } else if (addMode === 'file') {
+          if (pendingUploadFiles.length === 0) {
+            showToast('Please select at least one file', true);
+            return;
+          }
+          for (const file of pendingUploadFiles) {
+            const id = uid('file');
+            await saveBlobToDB(id, file);
+            appData.resources.push({
+              id,
+              termId: activeTermId,
+              subjectId,
+              category,
+              title: file.name,
+              url: '',
+              type: 'file',
+              fileSize: file.size,
+              note,
+              addedBy: currentEditor || 'Admin',
+              createdAt: Date.now(),
+              hasBlob: true
+            });
+          }
+          await saveStateToDB(appData);
+          closeModal('resourceModal');
+          showToast(`${pendingUploadFiles.length} file(s) saved`);
+        } else if (addMode === 'bulk') {
+          const lines = document.getElementById('resBulkInput').value
+            .split('\n')
+            .map((l) => l.trim())
+            .filter(Boolean);
+          if (lines.length === 0) {
+            showToast('Paste at least one link', true);
+            return;
+          }
+          let addedCount = 0;
+          lines.forEach((line, idx) => {
+            let title = '';
+            let url = '';
+            if (line.includes('|')) {
+              const parts = line.split('|');
+              title = parts[0].trim();
+              url = parts.slice(1).join('|').trim();
+            } else {
+              url = line;
+              title = `Resource ${appData.resources.length + idx + 1}`;
+            }
+            if (url) {
+              appData.resources.push({
+                id: uid('res'),
+                termId: activeTermId,
+                subjectId,
+                category,
+                title,
+                url,
+                type: detectTypeFromUrl(url),
+                note,
+                addedBy: currentEditor || 'Admin',
+                createdAt: Date.now() + idx,
+                hasBlob: false
+              });
+              addedCount++;
+            }
+          });
+          await saveStateToDB(appData);
+          closeModal('resourceModal');
+          showToast(`Added ${addedCount} links`);
+        }
+
+        activeSubjectId = subjectId;
+        activeCategory = category;
+        renderAll();
+      });
+
+      document.getElementById('addSubjectBtn').addEventListener('click', () => {
+        document.getElementById('subjectModalTitle').textContent = 'Add Subject';
+        document.getElementById('editSubjectId').value = '';
+        document.getElementById('subEmojiInput').value = '📚';
+        document.getElementById('subNameInput').value = '';
+        document.getElementById('deleteSubjectBtn').classList.add('hidden');
+        openModal('subjectModal');
+      });
+
+      document.getElementById('editSubjectBtn').addEventListener('click', () => {
+        const sub = appData.subjects.find((s) => s.id === activeSubjectId);
+        if (!sub) return;
+        document.getElementById('subjectModalTitle').textContent = 'Edit Subject';
+        document.getElementById('editSubjectId').value = sub.id;
+        document.getElementById('subEmojiInput').value = sub.emoji || '📁';
+        document.getElementById('subNameInput').value = sub.name;
+        document.getElementById('deleteSubjectBtn').classList.remove('hidden');
+        openModal('subjectModal');
+      });
+
+      document.getElementById('subjectForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const editId = document.getElementById('editSubjectId').value;
+        const emoji = document.getElementById('subEmojiInput').value.trim() || '📁';
+        const name = document.getElementById('subNameInput').value.trim();
+        if (!name) return;
+
+        if (editId) {
+          const sub = appData.subjects.find((s) => s.id === editId);
+          if (sub) {
+            sub.emoji = emoji;
+            sub.name = name;
+          }
+          showToast('Subject updated');
+        } else {
+          const newSub = { id: uid('sub'), termId: activeTermId, name, emoji };
+          appData.subjects.push(newSub);
+          activeSubjectId = newSub.id;
+          showToast('Subject created');
+        }
+        await saveStateToDB(appData);
+        closeModal('subjectModal');
+        renderAll();
+      });
+
+      document.getElementById('deleteSubjectBtn').addEventListener('click', async () => {
+        const editId = document.getElementById('editSubjectId').value;
+        if (!editId) return;
+        appData.subjects = appData.subjects.filter((s) => s.id !== editId);
+        appData.resources = appData.resources.filter((r) => r.subjectId !== editId);
+        await saveStateToDB(appData);
+        closeModal('subjectModal');
+        showToast('Subject deleted');
+        renderAll();
+      });
+
+      document.getElementById('addTermBtn').addEventListener('click', () => {
+        document.getElementById('termNameInput').value = '';
+        openModal('termModal');
+      });
+      document.getElementById('termForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('termNameInput').value.trim();
+        if (!name) return;
+        const newTerm = { id: uid('term'), name, createdAt: Date.now() };
+        appData.terms.push(newTerm);
+        activeTermId = newTerm.id;
+        await saveStateToDB(appData);
+        closeModal('termModal');
+        showToast('New academic term added');
+        renderAll();
+      });
+
+      document.getElementById('settingsBtn').addEventListener('click', () => {
+        document.getElementById('settingTitleInput').value = appData.settings.title;
+        document.getElementById('settingAdminPinInput').value = appData.settings.adminPin;
+        renderEditorsList();
+        openModal('settingsModal');
+      });
+
+      document.getElementById('addEditorBtn').addEventListener('click', () => {
+        const name = document.getElementById('newEditorName').value.trim();
+        const pin = document.getElementById('newEditorPin').value.trim();
+        if (!name || !pin) {
+          showToast('Enter both name and PIN', true);
+          return;
+        }
+        appData.settings.editors.push({ name, pin });
+        document.getElementById('newEditorName').value = '';
+        document.getElementById('newEditorPin').value = '';
+        renderEditorsList();
+      });
+
+      document.getElementById('editorsList').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-remove-editor]');
+        if (!btn) return;
+        const idx = Number(btn.getAttribute('data-remove-editor'));
+        appData.settings.editors.splice(idx, 1);
+        renderEditorsList();
+      });
+
+      document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        appData.settings.title = document.getElementById('settingTitleInput').value.trim() || 'Batch Study Archive';
+        const newPin = document.getElementById('settingAdminPinInput').value.trim();
+        if (newPin) {
+          appData.settings.adminPin = newPin;
+          if (appData.settings.editors[0]) appData.settings.editors[0].pin = newPin;
+        }
+        await saveStateToDB(appData);
+        closeModal('settingsModal');
+        showToast('Settings saved');
+        renderAll();
+      });
+
+      document.getElementById('backupModalBtn').addEventListener('click', () => openModal('backupModal'));
+      document.getElementById('exportJsonBtn').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `batch-archive-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast('Archive exported');
+      });
+
+      document.getElementById('importJsonInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          try {
+            const parsed = JSON.parse(ev.target.result);
+            if (!parsed.terms || !parsed.subjects || !parsed.resources) {
+              showToast('Invalid archive file', true);
+              return;
+            }
+            appData = parsed;
+            activeTermId = appData.terms[0]?.id || '';
+            await saveStateToDB(appData);
+            closeModal('backupModal');
+            showToast('Archive imported successfully');
+            renderAll();
+          } catch {
+            showToast('Could not parse JSON file', true);
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        if (localStorage.getItem('batch_archive_theme') === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch {}
+
+      appData = await loadStateFromDB();
+      if (appData.terms.length > 0) activeTermId = appData.terms[0].id;
+      bindEvents();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
